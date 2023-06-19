@@ -22,7 +22,7 @@ const checkoutSchema = yup.object().shape({
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const FormPage = () => {
-  const { taskState: { editTask } } = useContext(DataContext);
+  const { taskState: { selectedTask }, taskDispatch } = useContext(DataContext);
   // const { id } = useParams();
   const navigate = useNavigate();
   const { onAddTask, onUpdateTask } = useTask()
@@ -30,13 +30,21 @@ const FormPage = () => {
 
   const handleFormSubmit = async (values) => {
     await sleep(500);
-    if (editTask) {
-      onUpdateTask(values);
+    if (selectedTask === "") {
+      // taskDispatch({
+      //   type: "ADD_TASK",
+      //   payload: {...values, id: nanoid()}
+      // })
+      onAddTask({...values, id: nanoid()})
     } else {
-      onAddTask({ ...values, id: nanoid() });
+      // taskDispatch({
+      //   type: "UPDATE_TASK",
+      //   payload: 
+      // })
+      onUpdateTask({...selectedTask, taskTitle: values.taskTitle, taskType: values.taskType, toggle: values.toggle})
     }
     // }
-    console.log(values, editTask);
+    console.log(values);
     navigate("/list");
   };
 
@@ -60,6 +68,7 @@ const FormPage = () => {
                 className={`h-10 w-10/12 rounded-md border-primaryColor border-2 bg-transparent px-3 ${
                   errors.taskTitle && touched.taskTitle ? "border-red-600" : ""
                 }`}
+                value={selectedTask.taskTitle}
               />
               {/* {errors.taskTitle && touched.taskTitle ? (
                 <div>{errors.taskTitle}</div>
@@ -76,14 +85,15 @@ const FormPage = () => {
                 className={`h-10 w-10/12 rounded-md border-primaryColor border-2 bg-transparent px-3 focus:border-primaryColor focus:ring-0 ${
                   errors.taskType && touched.taskType ? "border-red-600" : ""
                 }`}
+                value={selectedTask.taskType}
               >
                 <option value="" disabled defaultValue hidden>
                   Select your option
                 </option>
-                <option value="feature">Feature</option>
-                <option value="bug">Bug</option>
-                <option value="support">Support</option>
-                <option value="test">Test</option>
+                <option value="Feature">Feature</option>
+                <option value="Bug">Bug</option>
+                <option value="Support">Support</option>
+                <option value="Test">Test</option>
               </Field>
               {/* {errors.taskType && touched.taskType ? (
                 <div>{errors.taskType}</div>
@@ -95,6 +105,7 @@ const FormPage = () => {
                 name="toggle"
                 id="toggle"
                 className="w-5 h-5 rounded-md border-primaryColor border-2 bg-transparent checked:ring-primaryColor checked:bg-primaryColor focus:ring-primaryColor"
+                value={selectedTask.toggle}
               />
               {values.toggle ? "Active" : "Inactive"}
             </div>

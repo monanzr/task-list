@@ -1,6 +1,5 @@
-import React, { useContext} from 'react'
-import DataContext from '../context/DataProvider';
-
+import React, { useContext } from "react";
+import DataContext from "../context/DataProvider";
 
 const useTask = () => {
   const { taskState, taskDispatch } = useContext(DataContext);
@@ -16,15 +15,18 @@ const useTask = () => {
     onAddTask: (data) => {
       taskDispatch({ type: "ADD_TASK", payload: data });
     },
-    
-    onEditTask: (data) => {
-      taskDispatch({ type: "EDIT_TASK", payload: data });
-      },
-    
+
+    onRemoveTask: (data) => {
+      taskDispatch({ type: "REMOVE_TASK", payload: data });
+    },
+
     onUpdateTask: (data) => {
       taskDispatch({ type: "UPDATE_TASK", payload: data });
-      }
-  }
-}
+    },
+    getEditTask: (data) => {
+      taskDispatch({ type: "SELECTED_TASK", payload: data });
+    },
+  };
+};
 
-export default useTask
+export default useTask;
