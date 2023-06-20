@@ -1,63 +1,66 @@
-import React, { Fragment, useContext } from "react";
+import React from "react";
 import { Formik, Field, Form } from "formik";
 import * as yup from "yup";
-import DataContext from "../../context/DataProvider";
-import { useNavigate, useParams } from "react-router-dom";
+import { sleep, isEmpty } from "./../../utils/functions.util"
+import { useNavigate } from "react-router-dom";
 import { nanoid } from "nanoid";
-import useTask from './../../hooks/useTask';
-
-const initialValues = {
-  id: "",
-  taskTitle: "",
-  taskType: "",
-  toggle: false,
-};
+import useTask from "./../../hooks/useTask";
 
 const checkoutSchema = yup.object().shape({
   taskTitle: yup.string().required(" "),
   taskType: yup.string().required(" "),
-  //   toggle: yup.string().required("required"),
 });
 
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
 const FormPage = () => {
-  const { taskState: { selectedTask }, taskDispatch } = useContext(DataContext);
-  // const { id } = useParams();
-  const navigate = useNavigate();
-  const { onAddTask, onUpdateTask } = useTask()
+  const { onAddTask, onUpdateTask, getSelectedTask: selectedTask } = useTask();
+  const checkSelectedTaskEmpty = isEmpty(selectedTask);
 
+  const navigate = useNavigate();
 
   const handleFormSubmit = async (values) => {
     await sleep(500);
-    if (selectedTask === "") {
-      // taskDispatch({
-      //   type: "ADD_TASK",
-      //   payload: {...values, id: nanoid()}
-      // })
-      onAddTask({...values, id: nanoid()})
+    if (isEmpty(selectedTask)) {
+      onAddTask({ ...values, id: nanoid() });
     } else {
-      // taskDispatch({
-      //   type: "UPDATE_TASK",
-      //   payload: 
-      // })
-      onUpdateTask({...selectedTask, taskTitle: values.taskTitle, taskType: values.taskType, toggle: values.toggle})
+      onUpdateTask({
+        ...selectedTask,
+        taskTitle: values.taskTitle,
+        taskType: values.taskType,
+        toggle: values.toggle,
+      });
     }
-    // }
-    console.log(values);
     navigate("/list");
   };
 
+  const handleGoToList = () => {
+    navigate("/list");
+  }
+
   return (
-    <div className="flex justify-around items-center gap-16">
+    <div className="grid md:grid-cols-2 grid-cols-1 items-center md:justify-items-start justify-items-center lg:gap-16 md:gap-0 gap-16 p-16">
+      <div className="grid gap-12 w-full">
       <Formik
-        initialValues={initialValues}
+        initialValues={
+          checkSelectedTaskEmpty
+            ? {
+                id: "",
+                taskTitle: "",
+                taskType: "",
+                toggle: false,
+              }
+            : {
+                id: selectedTask.id,
+                taskTitle: selectedTask.taskTitle,
+                taskType: selectedTask.taskType,
+                toggle: selectedTask.toggle,
+              }
+        }
         onSubmit={handleFormSubmit}
         validationSchema={checkoutSchema}
       >
         {({ values, errors, touched }) => (
           <Form className="grid gap-8">
-            <h1 className="text-6xl">Create New Task</h1>
+            <h1 className="xl:text-6xl md:text-5xl sm:text-4xl text-3xl">Create New Task</h1>
             <div className="grid gap-2">
               <label htmlFor="taskTitle" className="text-sm">
                 Task Title
@@ -65,14 +68,11 @@ const FormPage = () => {
               <Field
                 id="taskTitle"
                 name="taskTitle"
-                className={`h-10 w-10/12 rounded-md border-primaryColor border-2 bg-transparent px-3 ${
+                className={`h-10 md:w-10/12 w-full rounded-md border-primaryColor border-2 bg-transparent px-3 ${
                   errors.taskTitle && touched.taskTitle ? "border-red-600" : ""
                 }`}
-                value={selectedTask.taskTitle}
+                value={values.taskTitle}
               />
-              {/* {errors.taskTitle && touched.taskTitle ? (
-                <div>{errors.taskTitle}</div>
-              ) : null} */}
             </div>
             <div className="grid gap-2">
               <label htmlFor="taskType" className="text-sm">
@@ -82,10 +82,10 @@ const FormPage = () => {
                 as="select"
                 name="taskType"
                 id="taskType"
-                className={`h-10 w-10/12 rounded-md border-primaryColor border-2 bg-transparent px-3 focus:border-primaryColor focus:ring-0 ${
+                className={`h-10 md:w-10/12 w-full rounded-md border-primaryColor border-2 bg-transparent px-3 focus:border-primaryColor focus:ring-0 ${
                   errors.taskType && touched.taskType ? "border-red-600" : ""
                 }`}
-                value={selectedTask.taskType}
+                value={values.taskType}
               >
                 <option value="" disabled defaultValue hidden>
                   Select your option
@@ -95,9 +95,6 @@ const FormPage = () => {
                 <option value="Support">Support</option>
                 <option value="Test">Test</option>
               </Field>
-              {/* {errors.taskType && touched.taskType ? (
-                <div>{errors.taskType}</div>
-              ) : null} */}
             </div>
             <div className="flex items-center gap-2">
               <Field
@@ -105,19 +102,26 @@ const FormPage = () => {
                 name="toggle"
                 id="toggle"
                 className="w-5 h-5 rounded-md border-primaryColor border-2 bg-transparent checked:ring-primaryColor checked:bg-primaryColor focus:ring-primaryColor"
-                value={selectedTask.toggle}
               />
               {values.toggle ? "Active" : "Inactive"}
             </div>
             <button
               type="submit"
-              className="h-10 w-10/12 rounded-md text-lightColor bg-secondaryColor"
+              className="h-10 md:w-10/12 w-full rounded-md text-lightColor bg-secondaryColor"
             >
               Submit{" "}
             </button>
           </Form>
         )}
       </Formik>
+      <button
+        type="button"
+        className="h-14 md:w-10/12 w-full rounded-md text-lightColor bg-primaryColor"
+        onClick={handleGoToList}
+      >
+        Go To List
+      </button>
+      </div>
       <div>
         <img
           alt="form"

@@ -9,6 +9,6 @@
   }
 
   .app {
-    @apply h-screen flex justify-center items-center
+    @apply md:h-screen h-auto flex justify-center items-center
   }
 }

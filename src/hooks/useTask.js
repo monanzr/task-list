@@ -1,16 +1,13 @@
-import React, { useContext } from "react";
-import DataContext from "../context/DataProvider";
+import { useContext, useMemo } from "react";
+import DataContext from "../context/data-provider/provider";
 
 const useTask = () => {
   const { taskState, taskDispatch } = useContext(DataContext);
 
   return {
-    // useAddTask: (dispatch) => {
-    //   const addTask = (task) => {
-    //     dispatch({ type: "ADD_TASK", payload: task });
-    //   };
-    //   return addTask;
-    // };
+    getTasks: useMemo(() => taskState.task, [taskState]),
+
+    getSelectedTask: useMemo(() => taskState.selectedTask, [taskState]),
 
     onAddTask: (data) => {
       taskDispatch({ type: "ADD_TASK", payload: data });
