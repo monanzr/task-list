@@ -14,20 +14,22 @@ const ListPage = () => {
     getSelectedTask: selectedTask,
   } = useTask();
 
-  console.log("task", task);
-
   const handleBackToForm = () => {
     emptyObject(selectedTask);
     navigate("/");
   };
 
   const handleEdit = (val) => {
-    getEditTask(val);
-    navigate("/");
+    return () => {
+      getEditTask(val);
+      navigate("/");
+    }
   };
 
   const handleRemove = (val) => {
-    onRemoveTask(val.id);
+    return () => {
+      onRemoveTask(val.id);
+    }
   };
 
   return (
@@ -67,13 +69,13 @@ const ListPage = () => {
                 <Table.Cell className="flex gap-4 text-lg">
                   <button
                     className="font-medium text-secondaryColor hover:underline"
-                    onClick={() => handleEdit(item)}
+                    onClick={handleEdit(item)}
                   >
                     <LuEdit />
                   </button>
                   <button
                     className="font-medium text-secondaryColor hover:underline"
-                    onClick={() => handleRemove(item)}
+                    onClick={handleRemove(item)}
                   >
                     <LuTrash2 />
                   </button>
